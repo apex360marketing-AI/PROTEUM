@@ -11,7 +11,7 @@ type RevealProps = {
 };
 
 export function Reveal({ children, delay = 0, className, as: Tag = "div" }: RevealProps) {
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     const el = ref.current;
@@ -38,13 +38,37 @@ export function Reveal({ children, delay = 0, className, as: Tag = "div" }: Reve
     return () => obs.disconnect();
   }, []);
 
+  const setRef = (node: HTMLElement | null) => {
+    ref.current = node;
+  };
+
+  const style = delay ? { transitionDelay: `${delay}ms` } : undefined;
+  const className_ = cn("reveal", className);
+
+  if (Tag === "section") {
+    return (
+      <section ref={setRef as React.Ref<HTMLElement>} className={className_} style={style}>
+        {children}
+      </section>
+    );
+  }
+  if (Tag === "article") {
+    return (
+      <article ref={setRef as React.Ref<HTMLElement>} className={className_} style={style}>
+        {children}
+      </article>
+    );
+  }
+  if (Tag === "li") {
+    return (
+      <li ref={setRef as React.Ref<HTMLLIElement>} className={className_} style={style}>
+        {children}
+      </li>
+    );
+  }
   return (
-    <Tag
-      ref={ref as React.Ref<HTMLDivElement>}
-      className={cn("reveal", className)}
-      style={delay ? { transitionDelay: `${delay}ms` } : undefined}
-    >
+    <div ref={setRef as React.Ref<HTMLDivElement>} className={className_} style={style}>
       {children}
-    </Tag>
+    </div>
   );
 }

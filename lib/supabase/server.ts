@@ -1,5 +1,7 @@
-import { createServerClient } from "@supabase/ssr";
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
+
+type CookieSpec = { name: string; value: string; options?: CookieOptions };
 
 export function createSupabaseServerClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -18,13 +20,13 @@ export function createSupabaseServerClient() {
       getAll() {
         return cookieStore.getAll();
       },
-      setAll(cookiesToSet) {
+      setAll(cookiesToSet: CookieSpec[]) {
         try {
           cookiesToSet.forEach(({ name, value, options }) =>
             cookieStore.set(name, value, options),
           );
         } catch {
-          // Server component context — cookie set is a no-op here.
+          // Read-only cookie context (e.g. Server Component) — set is a no-op.
         }
       },
     },
