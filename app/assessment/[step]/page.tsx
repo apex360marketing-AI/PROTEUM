@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { QuizQuestion } from "@/components/assessment/QuizQuestion";
-import { getQuestionByStep, totalSteps } from "@/content/quiz-questions";
+import { getQuestionByOrder, totalSteps } from "@/content/quiz-questions";
 
 export function generateStaticParams() {
   return Array.from({ length: totalSteps }, (_, i) => ({
@@ -18,7 +18,7 @@ export default function AssessmentStepPage({
     notFound();
   }
 
-  const question = getQuestionByStep(stepNum);
+  const question = getQuestionByOrder(stepNum);
   if (!question) {
     notFound();
   }

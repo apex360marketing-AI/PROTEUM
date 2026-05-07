@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { QuizProvider } from "@/components/assessment/QuizProvider";
 import { QuizShell } from "@/components/assessment/QuizShell";
 
 export const metadata: Metadata = {
@@ -14,9 +13,5 @@ export default function AssessmentLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <QuizProvider>
-      <QuizShell>{children}</QuizShell>
-    </QuizProvider>
-  );
+  return <QuizShell>{children}</QuizShell>;
 }
