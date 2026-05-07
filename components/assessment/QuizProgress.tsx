@@ -13,15 +13,18 @@ export function QuizProgress({
 
   return (
     <div className={cn("w-full", className)}>
-      <div className="flex items-center justify-between font-mono text-[11px] uppercase tracking-[0.22em] text-proteum-mist">
+      <div
+        className="flex items-center justify-between font-mono text-[11px] uppercase text-proteum-mist"
+        style={{ letterSpacing: "0.18em" }}
+      >
         <span>
           Step {current} of {total}
         </span>
         <span>{Math.round(pct)}%</span>
       </div>
-      <div className="mt-3 h-1 overflow-hidden rounded-full bg-white/[0.06]">
+      <div className="mt-3 h-1 overflow-hidden rounded-full bg-proteum-chrome-low/15">
         <div
-          className="h-full bg-gradient-to-r from-proteum-purple to-proteum-purple-glow transition-all duration-500 ease-out"
+          className="h-full bg-gradient-to-r from-proteum-sapphire to-proteum-sapphire-glow transition-all duration-500 ease-out"
           style={{ width: `${pct}%` }}
         />
       </div>

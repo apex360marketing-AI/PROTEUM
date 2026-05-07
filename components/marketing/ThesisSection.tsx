@@ -1,7 +1,8 @@
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { Eyebrow } from "@/components/ui/Eyebrow";
-import { Reveal } from "@/components/ui/Reveal";
+import { Card } from "@/components/ui/Card";
+import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
 const pillars = [
   {
@@ -28,39 +29,74 @@ export function ThesisSection() {
   return (
     <Section id="thesis">
       <Container size="wide">
-        <div className="grid gap-16 md:grid-cols-12 md:gap-12">
-          <div className="md:col-span-5">
-            <Reveal>
-              <Eyebrow>The thesis</Eyebrow>
-            </Reveal>
-            <Reveal delay={80}>
-              <h2 className="mt-6 text-balance font-display text-display-md text-proteum-bone">
-                Three forces have collided to make this category legible for the first time.
-              </h2>
-            </Reveal>
-            <Reveal delay={160}>
-              <p className="mt-6 max-w-md text-proteum-mist">
-                Peptides are not new. The ability to choose between them with confidence is.
-                PROTEUM exists at that intersection.
-              </p>
-            </Reveal>
-          </div>
+        <div className="mx-auto max-w-3xl">
+          <ScrollReveal>
+            <Eyebrow tone="sapphire" bare>
+              The thesis
+            </Eyebrow>
+          </ScrollReveal>
+          <ScrollReveal delay={80}>
+            <h2
+              className="mt-6 text-balance font-display font-light text-proteum-bone"
+              style={{
+                fontVariationSettings: '"opsz" 144',
+                fontSize: "clamp(2rem, 4vw, 3rem)",
+                lineHeight: 1.1,
+                letterSpacing: "-0.02em",
+              }}
+            >
+              Three forces collided to make this category legible for the first time.
+            </h2>
+          </ScrollReveal>
+          <ScrollReveal delay={160}>
+            <p className="mt-6 max-w-xl text-proteum-mist">
+              Peptides are not new. The ability to choose between them with
+              confidence is. PROTEUM exists at that intersection.
+            </p>
+          </ScrollReveal>
+        </div>
 
-          <ul className="grid gap-px overflow-hidden rounded-2xl bg-white/[0.06] md:col-span-7">
-            {pillars.map((p, i) => (
-              <Reveal as="li" key={p.n} delay={120 + i * 80}>
-                <article className="bg-proteum-deep/80 p-8 md:p-10">
-                  <div className="flex items-baseline gap-4">
-                    <span className="font-mono text-xs text-proteum-purple-glow">{p.n}</span>
-                    <h3 className="font-display text-xl tracking-tight text-proteum-bone md:text-2xl">
-                      {p.title}
-                    </h3>
-                  </div>
-                  <p className="mt-4 max-w-xl text-proteum-mist">{p.body}</p>
-                </article>
-              </Reveal>
-            ))}
-          </ul>
+        <div className="mt-16 grid gap-6 md:grid-cols-3 md:gap-7">
+          {pillars.map((p, i) => (
+            <ScrollReveal key={p.n} delay={120 + i * 80}>
+              <Card
+                interactive
+                chromeAccent={false}
+                className="group h-full"
+              >
+                {/* Sapphire-glow top accent on hover */}
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-x-6 top-0 h-px opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                  style={{
+                    background:
+                      "linear-gradient(to right, transparent 0%, #60A5FA 50%, transparent 100%)",
+                    boxShadow: "0 0 12px rgba(96, 165, 250, 0.6)",
+                  }}
+                />
+                <span
+                  className="font-mono text-[12px] text-proteum-sapphire-glow"
+                  style={{ letterSpacing: "0.18em" }}
+                >
+                  {p.n}
+                </span>
+                <h3
+                  className="mt-5 font-display font-light text-proteum-bone"
+                  style={{
+                    fontVariationSettings: '"opsz" 144',
+                    fontSize: "1.5rem",
+                    lineHeight: 1.2,
+                    letterSpacing: "-0.015em",
+                  }}
+                >
+                  {p.title}
+                </h3>
+                <p className="mt-4 text-[15px] leading-relaxed text-proteum-mist">
+                  {p.body}
+                </p>
+              </Card>
+            </ScrollReveal>
+          ))}
         </div>
       </Container>
     </Section>

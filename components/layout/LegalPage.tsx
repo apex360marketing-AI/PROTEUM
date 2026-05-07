@@ -13,12 +13,23 @@ export function LegalPage({ eyebrow, title, effective, intro, children }: LegalP
   return (
     <article className="py-16 md:py-24">
       <Container size="narrow">
-        <header className="border-b border-white/[0.06] pb-12">
-          <Eyebrow>{eyebrow}</Eyebrow>
-          <h1 className="mt-6 text-balance font-display text-display-md text-proteum-bone">
+        <header className="border-b border-proteum-chrome-low/20 pb-12">
+          <Eyebrow tone="sapphire">{eyebrow}</Eyebrow>
+          <h1
+            className="mt-6 text-balance font-display font-light text-proteum-bone"
+            style={{
+              fontVariationSettings: '"opsz" 144',
+              fontSize: "clamp(2.25rem, 4.5vw, 3.5rem)",
+              lineHeight: 1.08,
+              letterSpacing: "-0.02em",
+            }}
+          >
             {title}
           </h1>
-          <p className="mt-6 font-mono text-[11px] uppercase tracking-[0.22em] text-proteum-mist">
+          <p
+            className="mt-6 font-mono text-[11px] uppercase text-proteum-mist"
+            style={{ letterSpacing: "0.18em" }}
+          >
             Effective {effective}
           </p>
           {intro && <p className="mt-6 text-proteum-mist">{intro}</p>}
@@ -41,10 +52,18 @@ export function LegalSection({
 }) {
   return (
     <section className="space-y-4">
-      <h2 className="font-display text-2xl tracking-tight text-proteum-bone md:text-3xl">
+      <h2
+        className="font-display font-light text-proteum-bone"
+        style={{
+          fontVariationSettings: '"opsz" 96',
+          fontSize: "1.625rem",
+          lineHeight: 1.2,
+          letterSpacing: "-0.015em",
+        }}
+      >
         {heading}
       </h2>
-      <div className="space-y-4 text-proteum-mist [&_strong]:text-proteum-bone [&_a]:text-proteum-bone [&_a]:underline [&_a]:underline-offset-4">
+      <div className="space-y-4 text-proteum-mist [&_strong]:text-proteum-bone [&_a]:text-proteum-sapphire-glow [&_a]:underline [&_a]:underline-offset-4 [&_a:hover]:text-proteum-bone">
         {children}
       </div>
     </section>

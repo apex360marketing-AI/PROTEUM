@@ -2,36 +2,43 @@ import { ArrowRight } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { Button } from "@/components/ui/Button";
-import { Reveal } from "@/components/ui/Reveal";
+import { ScrollReveal } from "@/components/ui/ScrollReveal";
+import { HeroGlow } from "@/components/layout/BackgroundLayers";
 
 export function FinalCtaSection() {
   return (
     <Section spacing="loose" className="relative overflow-hidden">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-1/2 -z-10 mx-auto h-[40rem] w-[40rem] -translate-y-1/2 rounded-full bg-radial-purple blur-3xl"
-      />
-      <Container size="default">
-        <div className="mx-auto max-w-2xl text-center">
-          <Reveal>
-            <h2 className="text-balance font-display text-display-md md:text-display-lg text-proteum-bone">
-              Ready to start? Take the assessment.
+      <HeroGlow tone="sapphire-glow" />
+
+      <Container size="default" className="relative">
+        <div className="mx-auto max-w-3xl text-center">
+          <ScrollReveal>
+            <h2
+              className="text-balance font-display font-light text-proteum-bone"
+              style={{
+                fontVariationSettings: '"opsz" 144, "SOFT" 50',
+                fontSize: "clamp(2.5rem, 5.5vw, 4.25rem)",
+                lineHeight: 1.05,
+                letterSpacing: "-0.02em",
+              }}
+            >
+              Don&apos;t guess. Know.
             </h2>
-          </Reveal>
-          <Reveal delay={80}>
-            <p className="mx-auto mt-6 max-w-lg text-proteum-mist">
+          </ScrollReveal>
+          <ScrollReveal delay={80}>
+            <p className="mx-auto mt-8 max-w-xl text-[17px] leading-relaxed text-proteum-mist md:text-[19px]">
               Five minutes. No account required. The output is yours, whether
               you act on it now or later.
             </p>
-          </Reveal>
-          <Reveal delay={160}>
-            <div className="mt-10">
+          </ScrollReveal>
+          <ScrollReveal delay={160}>
+            <div className="mt-12">
               <Button href="/assessment" size="lg">
                 Take the assessment
                 <ArrowRight size={16} />
               </Button>
             </div>
-          </Reveal>
+          </ScrollReveal>
         </div>
       </Container>
     </Section>

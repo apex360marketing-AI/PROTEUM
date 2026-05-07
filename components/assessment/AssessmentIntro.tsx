@@ -26,11 +26,19 @@ export function AssessmentIntro() {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <Eyebrow tone="purple">Assessment</Eyebrow>
-      <h1 className="mt-6 text-balance font-display text-display-md md:text-display-lg text-proteum-bone">
-        Tell us what you're trying to do.
+      <Eyebrow tone="sapphire">Assessment</Eyebrow>
+      <h1
+        className="mt-6 text-balance font-display font-light text-proteum-bone"
+        style={{
+          fontVariationSettings: '"opsz" 144',
+          fontSize: "clamp(2.25rem, 5vw, 3.75rem)",
+          lineHeight: 1.05,
+          letterSpacing: "-0.02em",
+        }}
+      >
+        Tell us what you&apos;re trying to do.
       </h1>
-      <p className="mt-6 text-proteum-mist md:text-lg">
+      <p className="mt-6 text-[17px] leading-relaxed text-proteum-mist md:text-[19px]">
         A structured assessment that maps your goals, training context, and
         baseline familiarity to a ranked, evidence-graded peptide brief. Your
         answers stay anonymous — no account, no email, no follow-up sales push.
@@ -40,21 +48,21 @@ export function AssessmentIntro() {
         {meta.map(({ icon: Icon, label }) => (
           <li
             key={label}
-            className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-proteum-deep/40 px-4 py-3"
+            className="glass flex items-center gap-3 rounded-xl px-4 py-3"
           >
-            <Icon size={16} className="text-proteum-purple-glow" />
+            <Icon size={16} className="text-proteum-sapphire-glow" />
             <span className="text-sm text-proteum-bone">{label}</span>
           </li>
         ))}
       </ul>
 
-      <div className="mt-10 rounded-2xl border border-white/[0.06] bg-proteum-deep/60 p-6 md:p-8">
+      <div className="glass mt-10 rounded-2xl p-6 md:p-8">
         <label className="flex cursor-pointer items-start gap-4">
           <input
             type="checkbox"
             checked={agreed}
             onChange={(e) => setAgreed(e.target.checked)}
-            className="mt-1 size-4 shrink-0 cursor-pointer accent-proteum-purple-glow"
+            className="mt-1 size-4 shrink-0 cursor-pointer accent-proteum-sapphire-glow"
           />
           <span className="text-sm text-proteum-bone/90">
             I am 18 or older and I understand this assessment provides{" "}

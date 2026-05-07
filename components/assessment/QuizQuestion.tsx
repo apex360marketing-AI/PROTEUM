@@ -69,7 +69,15 @@ export function QuizQuestion({ question }: { question: QQ }) {
     <div className="mx-auto max-w-2xl">
       <QuizProgress current={question.step} total={totalSteps} />
 
-      <h1 className="mt-12 text-balance font-display text-display-md text-proteum-bone">
+      <h1
+        className="mt-12 text-balance font-display font-light text-proteum-bone"
+        style={{
+          fontVariationSettings: '"opsz" 144',
+          fontSize: "clamp(2rem, 4vw, 3rem)",
+          lineHeight: 1.1,
+          letterSpacing: "-0.02em",
+        }}
+      >
         {question.prompt}
       </h1>
       {question.helper && (
@@ -84,10 +92,10 @@ export function QuizQuestion({ question }: { question: QQ }) {
             <label
               key={opt.value}
               className={cn(
-                "group flex cursor-pointer items-start gap-4 rounded-2xl border p-5 transition-all md:p-6",
+                "group flex cursor-pointer items-start gap-4 rounded-2xl border p-5 transition-all duration-200 md:p-6",
                 isSelected
-                  ? "border-proteum-purple-glow bg-proteum-purple/[0.08] shadow-glow-purple"
-                  : "border-white/[0.06] bg-proteum-deep/40 hover:border-white/[0.14] hover:bg-proteum-deep/70",
+                  ? "border-proteum-sapphire-glow bg-proteum-sapphire/[0.08] shadow-[0_0_24px_-6px_rgba(96,165,250,0.45)]"
+                  : "border-proteum-chrome-low/20 bg-proteum-surface/40 hover:border-proteum-chrome-mid/35 hover:bg-proteum-surface/70",
               )}
             >
               <input
@@ -103,14 +111,21 @@ export function QuizQuestion({ question }: { question: QQ }) {
                 className={cn(
                   "mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full border transition-colors",
                   isSelected
-                    ? "border-proteum-purple-glow bg-proteum-purple-glow text-proteum-black"
-                    : "border-white/20 group-hover:border-white/40",
+                    ? "border-proteum-sapphire-glow bg-proteum-sapphire-glow text-proteum-void"
+                    : "border-proteum-chrome-low/40 group-hover:border-proteum-chrome-mid/60",
                 )}
               >
                 {isSelected && <Check size={12} strokeWidth={3} />}
               </span>
               <span className="flex-1">
-                <span className="block font-display text-base text-proteum-bone md:text-lg">
+                <span
+                  className="block font-display font-light text-proteum-bone"
+                  style={{
+                    fontVariationSettings: '"opsz" 36',
+                    fontSize: "1.0625rem",
+                    lineHeight: 1.35,
+                  }}
+                >
                   {opt.label}
                 </span>
                 {opt.description && (

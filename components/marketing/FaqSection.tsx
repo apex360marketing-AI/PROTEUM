@@ -5,7 +5,7 @@ import { Plus } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { Eyebrow } from "@/components/ui/Eyebrow";
-import { Reveal } from "@/components/ui/Reveal";
+import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { cn } from "@/lib/utils/cn";
 
 type Item = { q: string; a: string };
@@ -42,32 +42,56 @@ export function FaqSection() {
     <Section id="faq">
       <Container size="default">
         <div className="mx-auto max-w-2xl text-center">
-          <Reveal>
-            <Eyebrow>FAQ</Eyebrow>
-          </Reveal>
-          <Reveal delay={80}>
-            <h2 className="mt-6 text-balance font-display text-display-md text-proteum-bone">
+          <ScrollReveal>
+            <Eyebrow tone="sapphire" bare>
+              FAQ
+            </Eyebrow>
+          </ScrollReveal>
+          <ScrollReveal delay={80}>
+            <h2
+              className="mt-6 text-balance font-display font-light text-proteum-bone"
+              style={{
+                fontVariationSettings: '"opsz" 144',
+                fontSize: "clamp(2rem, 4vw, 3rem)",
+                lineHeight: 1.1,
+                letterSpacing: "-0.02em",
+              }}
+            >
               The questions that come up most.
             </h2>
-          </Reveal>
+          </ScrollReveal>
         </div>
 
-        <ul className="mt-14 divide-y divide-white/[0.06] overflow-hidden rounded-2xl border border-white/[0.06] bg-proteum-deep/40">
-          {items.map((item, i) => (
-            <FaqItem key={item.q} item={item} index={i} />
-          ))}
-        </ul>
+        <ScrollReveal delay={140}>
+          <ul className="glass mt-14 overflow-hidden rounded-2xl">
+            {items.map((item, i) => (
+              <FaqItem key={item.q} item={item} index={i} isLast={i === items.length - 1} />
+            ))}
+          </ul>
+        </ScrollReveal>
       </Container>
     </Section>
   );
 }
 
-function FaqItem({ item, index }: { item: Item; index: number }) {
+function FaqItem({
+  item,
+  index,
+  isLast,
+}: {
+  item: Item;
+  index: number;
+  isLast: boolean;
+}) {
   const [open, setOpen] = useState(false);
   const id = `faq-${index}`;
 
   return (
-    <li>
+    <li
+      className={cn(
+        !isLast && "border-b border-proteum-chrome-low/15",
+      )}
+    >
       <button
         type="button"
         aria-expanded={open}
@@ -75,16 +99,24 @@ function FaqItem({ item, index }: { item: Item; index: number }) {
         onClick={() => setOpen((v) => !v)}
         className={cn(
           "flex w-full items-center justify-between gap-6 px-6 py-6 text-left md:px-8",
-          "hover:bg-white/[0.02] transition-colors",
+          "transition-colors duration-200 hover:bg-proteum-chrome/[0.025]",
         )}
       >
-        <span className="font-display text-lg tracking-tight text-proteum-bone md:text-xl">
+        <span
+          className="font-display font-medium text-proteum-bone"
+          style={{
+            fontVariationSettings: '"opsz" 36',
+            fontSize: "1.125rem",
+            lineHeight: 1.4,
+            letterSpacing: "-0.01em",
+          }}
+        >
           {item.q}
         </span>
         <span
           className={cn(
-            "flex size-8 shrink-0 items-center justify-center rounded-full border border-white/10 text-proteum-mist transition-transform duration-300",
-            open && "rotate-45 border-proteum-purple-glow text-proteum-purple-glow",
+            "flex size-8 shrink-0 items-center justify-center rounded-full border border-proteum-chrome-low/30 text-proteum-mist transition-all duration-300",
+            open && "rotate-45 border-proteum-sapphire-glow text-proteum-sapphire-glow",
           )}
           aria-hidden
         >
@@ -95,12 +127,14 @@ function FaqItem({ item, index }: { item: Item; index: number }) {
         id={id}
         role="region"
         className={cn(
-          "grid overflow-hidden px-6 transition-all duration-300 md:px-8",
+          "grid overflow-hidden px-6 transition-all duration-300 ease-out md:px-8",
           open ? "grid-rows-[1fr] pb-6 opacity-100" : "grid-rows-[0fr] opacity-0",
         )}
       >
         <div className="min-h-0">
-          <p className="max-w-3xl text-proteum-mist">{item.a}</p>
+          <p className="max-w-3xl text-[15px] leading-relaxed text-proteum-mist">
+            {item.a}
+          </p>
         </div>
       </div>
     </li>
