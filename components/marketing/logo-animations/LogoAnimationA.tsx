@@ -8,7 +8,9 @@
 import { motion } from "framer-motion";
 import { LETTERS, type LogoAnimationProps } from "./shared";
 
-const startPositions = [
+type Start = { x: number; y: number; z: number; r: number };
+
+const startPositions: readonly Start[] = [
   { x: -180, y: -120, z: 80, r: -28 },
   { x: 200, y: -80, z: -120, r: 22 },
   { x: -140, y: 160, z: 120, r: 35 },
@@ -17,6 +19,8 @@ const startPositions = [
   { x: 180, y: 100, z: 100, r: -24 },
   { x: -80, y: -200, z: 160, r: 30 },
 ];
+
+const fallbackStart: Start = { x: 0, y: 0, z: 0, r: 0 };
 
 export default function LogoAnimationA({
   duration = 5500,
@@ -59,7 +63,7 @@ export default function LogoAnimationA({
         style={{ perspective: 1200, gap: size * 0.04 }}
       >
         {LETTERS.map((letter, i) => {
-          const start = startPositions[i % startPositions.length];
+          const start = startPositions[i % startPositions.length] ?? fallbackStart;
           return (
             <motion.span
               key={`${letter}-${i}`}

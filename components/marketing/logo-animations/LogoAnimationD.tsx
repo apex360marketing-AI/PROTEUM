@@ -31,7 +31,8 @@ export default function LogoAnimationD({
         {LETTERS.map((letter, i) => {
           const baseDelay = i * perLetter;
           // Three nodes per letter: top-left, top-right, bottom-center
-          const nodes = [
+          type Node = { x: number; y: number };
+          const nodes: readonly [Node, Node, Node] = [
             { x: -size * 0.18, y: -size * 0.32 },
             { x: size * 0.18, y: -size * 0.32 },
             { x: 0, y: size * 0.18 },

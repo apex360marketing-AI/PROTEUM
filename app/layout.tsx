@@ -10,11 +10,13 @@ const inter = Inter({
   weight: ["400", "500", "600"],
 });
 
+// Fraunces is loaded as a variable font so we can drive opsz/SOFT axes
+// for optical sizing on hero headlines. Weight is controlled via CSS
+// (font-weight on each element) rather than a static-weight subset.
 const fraunces = Fraunces({
   subsets: ["latin"],
   variable: "--font-display",
   display: "swap",
-  weight: ["300", "500"],
   axes: ["opsz", "SOFT"],
 });
 
