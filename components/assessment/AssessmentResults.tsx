@@ -1,9 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import {
   ArrowRight,
   ChevronDown,
+  FlaskConical,
+  Leaf,
   Pill,
   Repeat,
   RotateCcw,
@@ -13,43 +16,33 @@ import { Button } from "@/components/ui/Button";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { useQuizStore } from "@/lib/stores/quiz-store";
 import {
-  placeholderRecommendations,
-  recommendationCounts,
-  type RecommendationCategory,
-  type Recommendation,
-} from "@/content/placeholder-protocol";
+  generateRecommendations,
+  type CompoundRecommendation,
+  type LifestyleRecommendationOut,
+} from "@/lib/recommendations/engine";
 import { OTHER_VALUE } from "@/content/quiz-questions";
+import type { Compound } from "@/content/knowledge-base/types";
 import { cn } from "@/lib/utils/cn";
 
-const TABS: { id: RecommendationCategory; label: string }[] = [
-  { id: "peptides", label: "Peptides" },
-  { id: "vitamins", label: "Vitamins" },
-  { id: "lifestyle", label: "Lifestyle" },
-];
+type TabId = "peptides" | "vitamins" | "lifestyle";
 
 export function AssessmentResults() {
-  const router_answers = useQuizStore((s) => s.answers);
+  const answers = useQuizStore((s) => s.answers);
   const completedAt = useQuizStore((s) => s.completedAt);
   const hydrated = useQuizStore((s) => s.hydrated);
   const resetSession = useQuizStore((s) => s.resetSession);
 
-  const [activeTab, setActiveTab] = useState<RecommendationCategory>("peptides");
+  const [activeTab, setActiveTab] = useState<TabId>("peptides");
   const [whyOpen, setWhyOpen] = useState(false);
 
-  const filtered = useMemo(
-    () => placeholderRecommendations.filter((r) => r.category === activeTab),
-    [activeTab],
-  );
+  const recs = useMemo(() => generateRecommendations(answers), [answers]);
+  const summary = useMemo(() => buildSummary(answers), [answers]);
 
-  const summary = useMemo(() => buildSummary(router_answers), [router_answers]);
-
-  // If user hits results without ever taking the quiz, suggest going back.
   useEffect(() => {
     if (!hydrated) return;
-    // No-op redirect — we still render a fallback below if needed.
   }, [hydrated]);
 
-  const hasAnswers = Object.keys(router_answers).length > 0;
+  const hasAnswers = Object.keys(answers).length > 0;
   const isStaleVisit = hydrated && !hasAnswers && !completedAt;
 
   if (isStaleVisit) {
@@ -80,6 +73,12 @@ export function AssessmentResults() {
     );
   }
 
+  const counts = {
+    peptides: recs.peptides.length,
+    vitamins: recs.vitamins.length,
+    lifestyle: recs.lifestyle.length,
+  };
+
   return (
     <div>
       <Eyebrow tone="sapphire" bare>
@@ -104,19 +103,20 @@ export function AssessmentResults() {
 
       {/* Tab strip */}
       <div className="mt-12 flex flex-wrap gap-1 rounded-full border border-proteum-chrome-low/25 bg-proteum-surface/40 p-1 backdrop-blur-[16px]">
-        {TABS.map((tab) => {
-          const count =
-            tab.id === "peptides"
-              ? recommendationCounts.peptides
-              : tab.id === "vitamins"
-                ? recommendationCounts.vitamins
-                : recommendationCounts.lifestyle;
-          const active = activeTab === tab.id;
+        {(["peptides", "vitamins", "lifestyle"] as const).map((id) => {
+          const active = activeTab === id;
+          const count = counts[id];
+          const label =
+            id === "peptides"
+              ? "Peptides"
+              : id === "vitamins"
+                ? "Vitamins"
+                : "Lifestyle";
           return (
             <button
-              key={tab.id}
+              key={id}
               type="button"
-              onClick={() => setActiveTab(tab.id)}
+              onClick={() => setActiveTab(id)}
               className={cn(
                 "flex items-center gap-2 rounded-full px-5 py-2 text-sm font-medium transition-all duration-200",
                 active
@@ -125,7 +125,7 @@ export function AssessmentResults() {
               )}
               aria-pressed={active}
             >
-              {tab.label}
+              {label}
               <span
                 className={cn(
                   "rounded-full px-2 py-0.5 font-mono text-[10px]",
@@ -143,12 +143,29 @@ export function AssessmentResults() {
 
       {/* Recommendation cards */}
       <ul className="mt-8 flex flex-col gap-5">
-        {filtered.map((r) => (
-          <RecommendationCard key={r.id} rec={r} />
-        ))}
+        {activeTab === "peptides" &&
+          recs.peptides.map((r) => (
+            <CompoundRecommendationCard key={r.compound.id} rec={r} />
+          ))}
+        {activeTab === "vitamins" &&
+          recs.vitamins.map((r) => (
+            <CompoundRecommendationCard key={r.compound.id} rec={r} />
+          ))}
+        {activeTab === "lifestyle" &&
+          recs.lifestyle.map((r) => (
+            <LifestyleRecommendationCard key={r.item.id} rec={r} />
+          ))}
+        {((activeTab === "peptides" && recs.peptides.length === 0) ||
+          (activeTab === "vitamins" && recs.vitamins.length === 0) ||
+          (activeTab === "lifestyle" && recs.lifestyle.length === 0)) && (
+          <li className="glass rounded-2xl p-8 text-center text-proteum-mist">
+            We didn&apos;t find strong matches in this category. Try adjusting
+            your assessment answers if this is unexpected.
+          </li>
+        )}
       </ul>
 
-      {/* Why these? expandable */}
+      {/* Why these? */}
       <button
         type="button"
         onClick={() => setWhyOpen((v) => !v)}
@@ -189,25 +206,28 @@ export function AssessmentResults() {
         )}
       >
         <div className="min-h-0">
-          <div className="glass rounded-2xl p-6 md:p-8">
+          <div className="glass space-y-4 rounded-2xl p-6 md:p-8">
             <p className="text-[15px] leading-relaxed text-proteum-mist">
-              The recommendation engine cross-references your answers — primary
-              goal, current state, body composition goals, and history — against
-              published trial data, mechanistic biochemistry, and our editorial
-              criteria. Compounds that don&apos;t pass the evidence bar simply
-              don&apos;t appear, regardless of how popular they are elsewhere.
+              The recommendation engine cross-references your answers against
+              every compound in our knowledge base. Each compound has a set of
+              <em> match signals</em> — quiz answers that signal alignment with
+              the compound&apos;s strongest evidence. We sum the weights of all
+              your matched signals, apply diversity rules (no more than two
+              GH-axis peptides at a time), and demote longevity-only compounds
+              for users under 30.
             </p>
-            <p className="mt-4 text-[15px] leading-relaxed text-proteum-mist">
+            <p className="text-[15px] leading-relaxed text-proteum-mist">
               Higher match-strength dots mean tighter alignment between the
-              compound&apos;s strongest evidence and your specific inputs. The
-              full reasoning per molecule is unlocked in the deep brief —
-              available when the platform launches.
+              compound&apos;s strongest published evidence and your specific
+              inputs. Click <em>Read brief</em> on any card to see the full
+              editorial entry — mechanism, key research, contraindications, and
+              the legal status that applies in your region.
             </p>
           </div>
         </div>
       </div>
 
-      {/* Footer CTA — placeholder for email capture in Prompt 6 */}
+      {/* Footer CTA */}
       <div className="glass mt-12 rounded-2xl p-6 md:p-8">
         <p
           className="font-mono text-[11px] uppercase text-proteum-gold-dim"
@@ -228,8 +248,8 @@ export function AssessmentResults() {
         </h3>
         <p className="mt-3 max-w-md text-sm leading-relaxed text-proteum-mist">
           Deep briefs per molecule, vetted vendor partners, dosing protocols
-          backed by trial data, and a printable PDF. We&apos;ll wire this up
-          in the next phase.
+          backed by trial data, and a printable PDF. We&apos;ll wire this up in
+          the next phase.
         </p>
         <div className="mt-6 flex flex-wrap items-center gap-3">
           <Button disabled size="md">
@@ -246,13 +266,19 @@ export function AssessmentResults() {
   );
 }
 
-// ─────────────── Recommendation card ───────────────
+// ─────────────── Recommendation cards ───────────────
 
-function RecommendationCard({ rec }: { rec: Recommendation }) {
-  const Icon = rec.category === "lifestyle" ? Repeat : rec.category === "vitamins" ? Sparkles : Pill;
+function CompoundRecommendationCard({ rec }: { rec: CompoundRecommendation }) {
+  const Icon = pickIcon(rec.compound);
+  const isUnderrated = rec.compound.classification === "underrated";
 
   return (
-    <li className="glass glass-hover rounded-2xl p-6 md:p-7">
+    <li
+      className={cn(
+        "glass glass-hover rounded-2xl p-6 md:p-7",
+        isUnderrated && "border-l-2 border-l-proteum-gold-dim",
+      )}
+    >
       <div className="flex items-start gap-5">
         <div className="flex size-11 shrink-0 items-center justify-center rounded-xl border border-proteum-sapphire-glow/30 bg-proteum-sapphire/10 text-proteum-sapphire-glow">
           <Icon size={20} strokeWidth={1.5} />
@@ -270,16 +296,36 @@ function RecommendationCard({ rec }: { rec: Recommendation }) {
                   letterSpacing: "-0.015em",
                 }}
               >
-                {rec.name}
+                {rec.compound.name}
               </h3>
-              <p className="mt-1 text-[14px] text-proteum-mist">{rec.tagline}</p>
+              <p className="mt-1 text-[14px] text-proteum-mist">
+                {rec.compound.tagline}
+              </p>
+              {isUnderrated && (
+                <span
+                  className="mt-2 inline-flex rounded-full bg-proteum-gold-dim/15 px-2 py-0.5 font-mono text-[10px] uppercase text-proteum-gold-dim"
+                  style={{ letterSpacing: "0.15em" }}
+                >
+                  Underrated
+                </span>
+              )}
             </div>
             <MatchDots strength={rec.matchStrength} />
           </div>
 
-          <p className="mt-4 text-[15px] leading-relaxed text-proteum-bone/85">
-            {rec.rationale}
-          </p>
+          {rec.reasonsToShow.length > 0 && (
+            <ul className="mt-4 space-y-2">
+              {rec.reasonsToShow.map((reason, i) => (
+                <li
+                  key={i}
+                  className="flex items-start gap-2 text-[14px] leading-relaxed text-proteum-bone/85"
+                >
+                  <span className="mt-2 size-1 shrink-0 rounded-full bg-proteum-sapphire-glow" />
+                  {reason}
+                </li>
+              ))}
+            </ul>
+          )}
 
           <div
             aria-hidden
@@ -291,12 +337,12 @@ function RecommendationCard({ rec }: { rec: Recommendation }) {
           />
 
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-            <button
-              type="button"
+            <Link
+              href={`/compounds/${rec.compound.id}`}
               className="text-sm font-medium text-proteum-sapphire-glow transition-colors hover:text-proteum-bone"
             >
-              Learn more →
-            </button>
+              Read brief →
+            </Link>
             <Button
               variant="chrome-ghost"
               size="sm"
@@ -313,6 +359,47 @@ function RecommendationCard({ rec }: { rec: Recommendation }) {
   );
 }
 
+function LifestyleRecommendationCard({
+  rec,
+}: {
+  rec: LifestyleRecommendationOut;
+}) {
+  return (
+    <li className="glass glass-hover rounded-2xl p-6 md:p-7">
+      <div className="flex items-start gap-5">
+        <div className="flex size-11 shrink-0 items-center justify-center rounded-xl border border-proteum-cyan/30 bg-proteum-cyan/10 text-proteum-cyan">
+          <Repeat size={20} strokeWidth={1.5} />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-baseline justify-between gap-3">
+            <div>
+              <h3
+                className="font-display text-proteum-bone"
+                style={{
+                  fontVariationSettings: '"opsz" 96',
+                  fontSize: "1.375rem",
+                  fontWeight: 500,
+                  lineHeight: 1.2,
+                }}
+              >
+                {rec.item.name}
+              </h3>
+              <p className="mt-1 text-[14px] text-proteum-mist">
+                {rec.item.tagline}
+              </p>
+            </div>
+            <MatchDots strength={rec.matchStrength} />
+          </div>
+
+          <p className="mt-4 text-[14px] leading-relaxed text-proteum-bone/85">
+            {rec.item.rationale}
+          </p>
+        </div>
+      </div>
+    </li>
+  );
+}
+
 function MatchDots({ strength }: { strength: 1 | 2 | 3 }) {
   return (
     <div className="flex items-center gap-2">
@@ -322,7 +409,10 @@ function MatchDots({ strength }: { strength: 1 | 2 | 3 }) {
       >
         Match
       </span>
-      <span className="flex items-center gap-1" aria-label={`Match strength ${strength} of 3`}>
+      <span
+        className="flex items-center gap-1"
+        aria-label={`Match strength ${strength} of 3`}
+      >
         {[1, 2, 3].map((i) => (
           <span
             key={i}
@@ -344,9 +434,19 @@ function MatchDots({ strength }: { strength: 1 | 2 | 3 }) {
   );
 }
 
-// ─────────────── Summary builder ───────────────
+function pickIcon(c: Compound) {
+  if (c.category === "peptide") return FlaskConical;
+  if (c.category === "vitamin") return Pill;
+  if (c.category === "mineral") return Pill;
+  if (c.category === "cofactor") return Leaf;
+  return Sparkles;
+}
 
-function buildSummary(answers: Record<string, { selected: string[] }>): string {
+// ─────────────── Summary ───────────────
+
+function buildSummary(
+  answers: Record<string, { selected: string[] }>,
+): string {
   const goal = answers["primary_goal"]?.selected.find((v) => v !== OTHER_VALUE);
   const win = answers["90_day_win"]?.selected.find((v) => v !== OTHER_VALUE);
 
@@ -365,10 +465,10 @@ function buildSummary(answers: Record<string, { selected: string[] }>): string {
   const winText = win ? winCopy[win] : null;
 
   if (goalText && winText) {
-    return `You're here to ${goalText}, ${winText}. Here's a starting protocol with the highest match strength to your inputs.`;
+    return `You're here to ${goalText}, ${winText}. Here's the protocol that best matches your inputs.`;
   }
   if (goalText) {
-    return `You're here to ${goalText}. Here's a starting protocol with the highest match strength to your inputs.`;
+    return `You're here to ${goalText}. Here's the protocol that best matches your inputs.`;
   }
-  return "Here's a starting protocol with the highest match strength to your inputs.";
+  return "Here's the protocol that best matches your inputs.";
 }
