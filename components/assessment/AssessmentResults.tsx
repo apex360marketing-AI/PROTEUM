@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import {
   ArrowRight,
+  ArrowUpRight,
   ChevronDown,
   FlaskConical,
   Leaf,
@@ -22,6 +23,10 @@ import {
 } from "@/lib/recommendations/engine";
 import { OTHER_VALUE } from "@/content/quiz-questions";
 import type { Compound } from "@/content/knowledge-base/types";
+import { getCarriedCompound, getVendorsForCompound } from "@/content/vendors";
+import type { Vendor } from "@/content/vendors/types";
+import { QualityRing } from "@/components/vendors/QualityRing";
+import { AffiliateDisclosure } from "@/components/vendors/AffiliateDisclosure";
 import { cn } from "@/lib/utils/cn";
 
 type TabId = "peptides" | "vitamins" | "lifestyle";
@@ -271,6 +276,11 @@ export function AssessmentResults() {
 function CompoundRecommendationCard({ rec }: { rec: CompoundRecommendation }) {
   const Icon = pickIcon(rec.compound);
   const isUnderrated = rec.compound.classification === "underrated";
+  const [vendorsOpen, setVendorsOpen] = useState(false);
+  const vendors = useMemo(
+    () => getVendorsForCompound(rec.compound.id).slice(0, 3),
+    [rec.compound.id],
+  );
 
   return (
     <li
@@ -343,20 +353,151 @@ function CompoundRecommendationCard({ rec }: { rec: CompoundRecommendation }) {
             >
               Read brief →
             </Link>
-            <Button
-              variant="chrome-ghost"
-              size="sm"
-              disabled
-              aria-disabled
-              className="opacity-60"
-            >
-              View vendor options
-            </Button>
+            {vendors.length > 0 ? (
+              <Button
+                variant="chrome-ghost"
+                size="sm"
+                onClick={() => setVendorsOpen((v) => !v)}
+                aria-expanded={vendorsOpen}
+              >
+                {vendorsOpen ? "Hide vendor options" : "View vendor options"}
+                <ChevronDown
+                  size={14}
+                  className={cn(
+                    "transition-transform duration-200",
+                    vendorsOpen && "rotate-180",
+                  )}
+                />
+              </Button>
+            ) : (
+              <Button
+                variant="chrome-ghost"
+                size="sm"
+                disabled
+                aria-disabled
+                className="opacity-60"
+              >
+                No vendor options yet
+              </Button>
+            )}
           </div>
+
+          {/* Inline vendor expansion */}
+          {vendors.length > 0 && (
+            <div
+              className={cn(
+                "grid overflow-hidden transition-all duration-300 ease-out",
+                vendorsOpen
+                  ? "mt-5 grid-rows-[1fr] opacity-100"
+                  : "grid-rows-[0fr] opacity-0",
+              )}
+            >
+              <div className="min-h-0">
+                <div className="rounded-2xl border border-proteum-chrome-low/20 bg-proteum-void/40 p-5">
+                  <div className="mb-4 flex flex-wrap items-baseline justify-between gap-3">
+                    <p
+                      className="font-mono text-[10px] uppercase text-proteum-mist-low"
+                      style={{ letterSpacing: "0.18em" }}
+                    >
+                      Where to source {rec.compound.name}
+                    </p>
+                    <div className="max-w-[300px]">
+                      <AffiliateDisclosure variant="compact" />
+                    </div>
+                  </div>
+                  <ul className="grid gap-3">
+                    {vendors.map((v) => (
+                      <MiniVendorCard
+                        key={v.id}
+                        vendor={v}
+                        compound={rec.compound}
+                      />
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </li>
   );
+}
+
+function MiniVendorCard({
+  vendor,
+  compound,
+}: {
+  vendor: Vendor;
+  compound: Compound;
+}) {
+  const product = getCarriedCompound(vendor, compound.id);
+  const isRecommended = vendor.proteumVerdict === "recommended";
+  const isCautious = vendor.proteumVerdict === "cautious";
+
+  return (
+    <li
+      className={cn(
+        "flex items-start gap-4 rounded-xl border border-proteum-chrome-low/20 bg-proteum-surface/40 p-4",
+        isRecommended && "border-l-2 border-l-proteum-gold-dim",
+      )}
+    >
+      <QualityRing score={vendor.qualityScore} size={44} />
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <div className="min-w-0">
+            <p className="text-[14px] font-medium text-proteum-bone">
+              {vendor.name}
+            </p>
+            {product && (
+              <p className="mt-0.5 text-[12px] text-proteum-mist">
+                {product.productName} ·{" "}
+                <span className="font-mono text-proteum-cyan">
+                  ${product.price.toFixed(2)}
+                </span>
+              </p>
+            )}
+          </div>
+          <span
+            className={cn(
+              "shrink-0 rounded-full px-2 py-0.5 font-mono text-[10px] uppercase",
+              isRecommended &&
+                "bg-proteum-gold-dim/15 text-proteum-gold-dim",
+              !isRecommended &&
+                !isCautious &&
+                "bg-proteum-sapphire-glow/15 text-proteum-sapphire-glow",
+              isCautious &&
+                "bg-proteum-chrome-mid/15 text-proteum-chrome-mid",
+            )}
+            style={{ letterSpacing: "0.15em" }}
+          >
+            {verdictLabel(vendor.proteumVerdict)}
+          </span>
+        </div>
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+          <Link
+            href={`/vendors/${vendor.id}`}
+            className="text-[12px] font-medium text-proteum-mist hover:text-proteum-sapphire-glow"
+          >
+            Profile →
+          </Link>
+          <a
+            href={`/go/${vendor.id}/${compound.id}`}
+            className="inline-flex items-center gap-1 text-[12px] font-medium text-proteum-sapphire-glow hover:text-proteum-bone"
+          >
+            View on {vendor.name}
+            <ArrowUpRight size={11} />
+          </a>
+        </div>
+      </div>
+    </li>
+  );
+}
+
+function verdictLabel(v: Vendor["proteumVerdict"]): string {
+  if (v === "recommended") return "Recommended";
+  if (v === "acceptable") return "Acceptable";
+  return "Use caution";
 }
 
 function LifestyleRecommendationCard({
