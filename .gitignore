@@ -49,5 +49,5 @@ next-env.d.ts
 .vscode/
 .idea/
 
-# Claude Code local settings
-.claude/
+# Claude Code — only ignore local settings; commit the skills bundle
+.claude/settings.local.json
