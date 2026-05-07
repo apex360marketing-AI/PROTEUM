@@ -4,17 +4,18 @@ import {
   ArrowRight,
   ArrowUpRight,
   ChevronRight,
-  ShieldCheck,
 } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { Card } from "@/components/ui/Card";
+import { VendorSection } from "@/components/vendors/VendorSection";
 import type {
   Compound,
   EvidenceLevel,
   StudiedFor,
 } from "@/content/knowledge-base/types";
 import { getCompoundById } from "@/content/knowledge-base";
+import { getVendorsForCompound } from "@/content/vendors";
 import { siteConfig } from "@/lib/constants/site";
 import { cn } from "@/lib/utils/cn";
 
@@ -377,26 +378,13 @@ export function CompoundDetail({ compound }: { compound: Compound }) {
         </Section>
       )}
 
-      {/* Vendor placeholder */}
+      {/* Vendor section */}
       <Section spacing="tight">
         <Container size="wide">
-          <Card variant="glass" className="flex items-start gap-4">
-            <ShieldCheck size={20} className="mt-1 shrink-0 text-proteum-cyan" />
-            <div>
-              <p
-                className="font-mono text-[11px] uppercase text-proteum-cyan"
-                style={{ letterSpacing: "0.18em" }}
-              >
-                Vendor options · Coming soon
-              </p>
-              <p className="mt-2 text-[15px] leading-relaxed text-proteum-bone/90">
-                Curated, vetted vendor partners coming soon. We&apos;ll show
-                you the best-tested sources for {compound.name} when our vendor
-                directory launches — selected on third-party analytical
-                testing, transparent sourcing, and verified track record.
-              </p>
-            </div>
-          </Card>
+          <VendorSection
+            compound={compound}
+            vendors={getVendorsForCompound(compound.id)}
+          />
         </Container>
       </Section>
 
