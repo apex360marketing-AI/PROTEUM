@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { ADMIN_COOKIE_NAME } from "@/lib/admin/auth";
+import { ADMIN_COOKIE_NAME } from "@/lib/admin/constants";
 
 /**
  * Middleware: gate /admin/* routes behind the admin cookie.

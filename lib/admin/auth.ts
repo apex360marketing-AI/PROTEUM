@@ -4,17 +4,23 @@ import { createHash, timingSafeEqual } from "node:crypto";
  * Admin auth — lightweight password-based gate for /admin/*.
  *
  * The cookie stores a SHA-256 hash of the configured ADMIN_PASSWORD. On each
- * request the middleware re-hashes the env-var password and compares it
+ * request the route handler re-hashes the env-var password and compares it
  * against the cookie value with a constant-time check. Rotating the env var
  * invalidates all existing sessions; clearing the cookie logs out.
  *
  * This is deliberately not a full auth system — there is no user database,
  * no roles, no session expiry beyond the cookie maxAge. Adequate for a
  * single-operator analytics dashboard, not for high-stakes data.
+ *
+ * Imports node:crypto, so it is Node-runtime only. Edge code (e.g.
+ * middleware.ts) must import the cookie name from `@/lib/admin/constants`
+ * directly.
  */
 
-export const ADMIN_COOKIE_NAME = "proteum_admin";
-export const ADMIN_COOKIE_MAX_AGE = 60 * 60 * 24 * 7; // 7 days, in seconds
+export {
+  ADMIN_COOKIE_NAME,
+  ADMIN_COOKIE_MAX_AGE,
+} from "@/lib/admin/constants";
 
 export function getAdminPasswordHash(): string | null {
   const pw = process.env.ADMIN_PASSWORD;
