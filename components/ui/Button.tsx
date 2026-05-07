@@ -2,27 +2,29 @@ import Link from "next/link";
 import { forwardRef } from "react";
 import { cn } from "@/lib/utils/cn";
 
-type Variant = "primary" | "secondary" | "ghost";
+type Variant = "primary" | "chrome-ghost" | "ghost";
 type Size = "sm" | "md" | "lg";
 
 const base =
-  "inline-flex items-center justify-center gap-2 font-medium rounded-full transition-all duration-200 will-change-transform " +
-  "disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 " +
-  "focus-visible:ring-proteum-purple-glow focus-visible:ring-offset-2 focus-visible:ring-offset-proteum-black";
+  "inline-flex items-center justify-center gap-2 rounded-full font-sans font-medium tracking-[0.02em] " +
+  "will-change-transform select-none disabled:pointer-events-none disabled:opacity-50 " +
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-proteum-sapphire-glow " +
+  "focus-visible:ring-offset-2 focus-visible:ring-offset-proteum-void";
 
 const variantMap: Record<Variant, string> = {
-  primary:
-    "bg-proteum-purple text-proteum-bone hover:bg-proteum-purple-glow hover:-translate-y-px shadow-glow-purple",
-  secondary:
-    "bg-transparent text-proteum-bone border border-white/15 hover:border-white/30 hover:bg-white/[0.03]",
+  // Sapphire CTA — the canonical primary action treatment
+  primary: "btn-sapphire",
+  // Chrome ghost — secondary action, transparent fill, chrome border
+  "chrome-ghost": "btn-chrome-ghost",
+  // Quiet text-only ghost — for tertiary actions
   ghost:
-    "bg-transparent text-proteum-mist hover:text-proteum-bone hover:bg-white/[0.03]",
+    "bg-transparent text-proteum-mist hover:text-proteum-bone transition-colors duration-200",
 };
 
 const sizeMap: Record<Size, string> = {
-  sm: "h-9 px-4 text-sm",
+  sm: "h-9 px-4 text-[13px]",
   md: "h-11 px-6 text-sm",
-  lg: "h-14 px-8 text-base",
+  lg: "h-14 px-8 text-[15px]",
 };
 
 type CommonProps = {
