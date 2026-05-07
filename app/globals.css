@@ -5,6 +5,24 @@
 @layer base {
   :root {
     color-scheme: dark;
+    --orb-opacity: 0.18;
+    --orb-glow-opacity: 0.12;
+    --orb-hero-opacity: 0.25;
+    --grain-opacity: 0.08;
+    --scanline-opacity: 0.03;
+    --glass-border-top: 0.16;
+    --glass-border-bottom: 0.0;
+  }
+
+  /* Mode B opt-in: applied to <html> when VISUAL_MODE === "B" */
+  html[data-visual-mode="B"] {
+    --orb-opacity: 0.234;
+    --orb-glow-opacity: 0.156;
+    --orb-hero-opacity: 0.325;
+    --grain-opacity: 0.1;
+    --scanline-opacity: 0.04;
+    --glass-border-top: 0.28;
+    --glass-border-bottom: 0.08;
   }
 
   html {
@@ -13,75 +31,182 @@
   }
 
   body {
-    @apply bg-proteum-black text-proteum-bone font-sans antialiased;
-    background-image:
-      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(107, 79, 187, 0.18), transparent 60%),
-      radial-gradient(ellipse 60% 40% at 90% 110%, rgba(94, 234, 212, 0.06), transparent 60%);
-    background-attachment: fixed;
+    @apply bg-proteum-void text-proteum-bone font-sans antialiased;
+    /* Base color stack — layered orbs are rendered via the BackgroundLayers component
+       so they can animate independently and be parallax-driven. */
   }
 
   ::selection {
-    background-color: rgba(107, 79, 187, 0.4);
+    background-color: rgba(96, 165, 250, 0.35);
     color: #F5F2EA;
   }
 
   *:focus-visible {
-    @apply outline-none ring-2 ring-proteum-purple-glow ring-offset-2 ring-offset-proteum-black rounded-sm;
+    @apply outline-none ring-2 ring-proteum-sapphire-glow ring-offset-2 ring-offset-proteum-void rounded-sm;
   }
 
+  /* Headings default to Fraunces light with optical sizing. */
   h1, h2, h3, h4, h5, h6 {
-    @apply font-display tracking-tight;
+    font-family: var(--font-display), ui-serif, Georgia, serif;
+    font-variation-settings: "opsz" 144, "SOFT" 50;
+    font-weight: 300;
+    letter-spacing: -0.02em;
   }
 
-  h1 { @apply text-display-lg md:text-display-xl; }
-  h2 { @apply text-display-md md:text-display-lg; }
-  h3 { @apply text-2xl md:text-3xl; }
+  h1 { @apply text-hero-lg md:text-hero-xl; line-height: 1.05; }
+  h2 { @apply text-display-md md:text-display-lg; line-height: 1.1; }
+  h3 { @apply text-2xl md:text-3xl; line-height: 1.15; }
 
   p { @apply leading-relaxed; }
 
-  a {
-    @apply transition-colors;
+  a { @apply transition-colors duration-200; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
 
 @layer components {
-  .grain-overlay {
-    position: relative;
-  }
-  .grain-overlay::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 240 240' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-    opacity: 0.6;
-    pointer-events: none;
-    mix-blend-mode: overlay;
-    z-index: 0;
-  }
-
-  .text-balance {
-    text-wrap: balance;
-  }
-
-  .hairline {
-    @apply border border-white/[0.06];
+  /* Glass card — the default elevated surface treatment for PROTEUM. */
+  .glass {
+    background: linear-gradient(
+      145deg,
+      rgba(26, 37, 71, 0.45) 0%,
+      rgba(11, 18, 40, 0.65) 100%
+    );
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border: 0.5px solid rgba(232, 236, 242, 0.08);
+    border-top-color: rgba(232, 236, 242, var(--glass-border-top));
+    border-bottom-color: rgba(232, 236, 242, var(--glass-border-bottom));
+    box-shadow:
+      0 8px 32px rgba(5, 8, 16, 0.4),
+      inset 0 1px 0 rgba(232, 236, 242, 0.04);
   }
 
+  .glass-hover {
+    transition: all 300ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .glass-hover:hover {
+    border-top-color: rgba(96, 165, 250, 0.45);
+    box-shadow:
+      0 16px 48px rgba(5, 8, 16, 0.55),
+      inset 0 1px 0 rgba(232, 236, 242, 0.08);
+    transform: translateY(-2px);
+  }
+
+  /* Chrome surface — used sparingly for badges, dividers, the logo mark fill. */
+  .chrome-surface {
+    background: linear-gradient(
+      135deg,
+      #6B7180 0%,
+      #C8CDD6 25%,
+      #E8ECF2 50%,
+      #C8CDD6 75%,
+      #6B7180 100%
+    );
+  }
+  .chrome-text {
+    background: linear-gradient(
+      135deg,
+      #C8CDD6 0%,
+      #E8ECF2 50%,
+      #C8CDD6 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Sapphire CTA — the primary action treatment. */
+  .btn-sapphire {
+    background: linear-gradient(180deg, #3B82F6 0%, #2563EB 100%);
+    border: 0.5px solid rgba(96, 165, 250, 0.3);
+    box-shadow:
+      0 4px 16px rgba(37, 99, 235, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    color: #F5F2EA;
+    transition: all 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .btn-sapphire:hover:not(:disabled) {
+    box-shadow:
+      0 8px 24px rgba(37, 99, 235, 0.55),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+  }
+  .btn-sapphire:active:not(:disabled) {
+    background: linear-gradient(180deg, #1D4ED8 0%, #1E40AF 100%);
+    transform: translateY(0);
+    box-shadow:
+      0 2px 8px rgba(37, 99, 235, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+
+  /* Chrome ghost button — secondary action, transparent fill, chrome border that picks up light. */
+  .btn-chrome-ghost {
+    background: transparent;
+    border: 0.5px solid rgba(200, 205, 214, 0.35);
+    color: #F5F2EA;
+    transition: all 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .btn-chrome-ghost:hover:not(:disabled) {
+    border-color: rgba(96, 165, 250, 0.6);
+    color: #60A5FA;
+    box-shadow: 0 0 24px -6px rgba(96, 165, 250, 0.4);
+  }
+
+  .text-balance { text-wrap: balance; }
+
+  .hero-glow {
+    text-shadow: 0 0 60px rgba(96, 165, 250, 0.4);
+  }
+
+  /* Reveal — used by Reveal/ScrollReveal components. */
   .reveal {
     opacity: 0;
-    transform: translateY(16px);
+    transform: translateY(12px);
     transition:
-      opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
-      transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+      opacity 600ms cubic-bezier(0.4, 0, 0.2, 1),
+      transform 600ms cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: opacity, transform;
   }
   .reveal.is-visible {
     opacity: 1;
     transform: translateY(0);
+  }
+
+  /* Hairline divider that catches a bit of light. */
+  .hairline {
+    border: 0;
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      transparent 0%,
+      rgba(200, 205, 214, 0.25) 50%,
+      transparent 100%
+    );
   }
 }
 
 @layer utilities {
   .container-prose {
     @apply mx-auto max-w-3xl px-6 md:px-8;
+  }
+
+  /* Eyebrow text style — mono caps with sapphire-glow tint. */
+  .eyebrow {
+    font-family: var(--font-mono), ui-monospace, monospace;
+    font-size: 12px;
+    line-height: 1;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #60A5FA;
   }
 }
