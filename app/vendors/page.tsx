@@ -27,6 +27,7 @@ export const metadata: Metadata = {
     url: "/vendors",
     type: "website",
   },
+  robots: { index: false, follow: false },
 };
 
 const CRITERIA = [

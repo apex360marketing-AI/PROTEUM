@@ -32,6 +32,7 @@ export function generateMetadata({ params }: { params: Params }): Metadata {
       title: `${compound.name} — ${siteConfig.name}`,
       description,
     },
+    robots: { index: false, follow: false },
   };
 }
 

@@ -39,7 +39,7 @@ export const footerNav: { title: string; items: NavItem[] }[] = [
     title: "Company",
     items: [
       { label: "About", href: "/#trust" },
-      { label: "Methodology", href: "/research-use" },
+      { label: "Methodology", href: "/methodology" },
       { label: "Contact", href: "mailto:hello@proteum.com" },
     ],
   },
