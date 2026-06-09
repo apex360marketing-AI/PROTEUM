@@ -110,52 +110,6 @@ Netlify will build and deploy on every push to `main`.
 
 ## Folder structure
 
-```
-app/
-  (marketing)/          marketing layout (Nav + Footer)
-    page.tsx              homepage (composes the 9 sections)
-    layout.tsx
-  assessment/           quiz flow
-    page.tsx              intro page with age gate
-    [step]/page.tsx       dynamic step page
-    results/page.tsx      results recommendations and match dots
-    layout.tsx            quiz shell + QuizProvider
-  compounds/            knowledge base pages
-  vendors/              vendor detail pages
-  admin/                analytics and basic auth
-  disclaimer/page.tsx
-  research-use/page.tsx
-  terms/page.tsx
-  privacy/page.tsx
-  layout.tsx            root layout (fonts, metadata)
-  globals.css
-
-components/
-  ui/                   primitives — Button, Card, Container, Section, etc.
-  layout/               Nav, Footer, LegalPage
-  marketing/            one component per homepage section
-  assessment/           QuizProvider, QuizShell, QuizQuestion, QuizProgress, results, intro
-  compounds/            knowledge base UI components
-  vendors/              vendor detail UI components
-
-lib/
-  supabase/             browser + server clients, generated types
-  recommendations/      scoring algorithm for assessment answers
-  constants/            site config and nav definitions
-  stores/               zustand quiz state
-  utils/                cn helper
-
-content/
-  knowledge-base/       peptide and vitamin entries
-  vendors/              vendor evaluations
-  quiz-questions.ts     the 15-step question schema
-
-supabase/
-  migrations/           SQL schemas and RLS policies
-
-netlify.toml            Netlify build + security headers
-.env.example            documented env vars
-```
 app/
   (marketing)/          marketing layout (Nav + Footer)
     page.tsx              homepage (composes the 9 sections)
