@@ -15,31 +15,31 @@ is informational. Peptides are framed in research-and-education contexts.
 
 ---
 
-## Phase A — what's built (this repo, today)
+## Current Capabilities
 
-- Next.js 14 App Router project with strict TypeScript and Tailwind
-- PROTEUM design system (color palette, display fonts, scroll reveal)
-- Marketing homepage with all 9 sections:
-  Hero, Thesis, Pillars, How it works, Built for, Trust & rigor, FAQ,
-  Final CTA, Footer
-- Assessment shell — intro page with 18+ age gate, dynamic step pages, results
-  placeholder, **3 placeholder questions** (Phase B replaces with the real schema)
-- Quiz responses persist anonymously to Supabase (`quiz_sessions`, `quiz_answers`)
-- Four legal pages with real, professional copy: Disclaimer, Research use,
-  Terms of use, Privacy policy
-- Netlify deployment configuration with security headers
-- Supabase initial migration with row-level security for anonymous inserts
+- **Next.js 14 App Router** project with strict TypeScript and Tailwind
+- **PROTEUM design system** (color palette, display fonts, scroll reveal)
+- **Marketing homepage** with all 9 sections: Hero, Thesis, Pillars, How it works, Built for, Trust & rigor, FAQ, Final CTA, Footer
+- **Assessment shell & flow**: 15-step intake assessment with age gating and dynamic step pages.
+- **Recommendation Engine**: Cross-references quiz responses with 32 compound profiles using weighted match signals, diversity rules, and age gating (`lib/recommendations/engine.ts`).
+- **Content Engine**: Comprehensive compound database detailing mechanisms, citations, legal status, and study findings.
+- **Vendor & Affiliate Layer**: Integrated vendor evaluations and affiliate routing layer. Clicks are logged to Supabase via `/go/[vendorId]/[compoundId]`.
+- **Admin Analytics**: A lightweight dashboard for viewing vendor click data and trends, protected by a simple password gate (`/admin/vendors`).
+- **Database Persistence**: Quiz sessions, answers, and affiliate clicks persist to Supabase using anonymous RLS inserts (`quiz_sessions`, `quiz_answers`, `affiliate_clicks`).
+- **Legal Content**: Disclaimer, Research use, Terms of use, Privacy policy.
 
-## Phase B / C / D — what's coming next
+---
 
-| Phase | Scope |
-| --- | --- |
-| **B** | Real assessment schema, recommendation engine, peptide brief content model |
-| **C** | Vendor/affiliate database, link routing, attribution, vendor-detail pages |
-| **D** | Content engine — long-form briefs, mechanism explainers, SEO infrastructure |
+## Architecture & Routing
 
-These phases are out of scope here. Don't build them in this repo until the
-corresponding phase prompt has been issued.
+| System | Path / Module | Purpose |
+| --- | --- | --- |
+| **Assessment Flow** | `app/assessment/*` | Intake quiz (15 steps) storing answers in `zustand` (`lib/stores/quiz-store.ts`) and syncing to Supabase. |
+| **Recommendations** | `lib/recommendations/engine.ts` | Scores user answers against compound `matchSignals`, producing a ranked protocol shown at `app/assessment/results/page.tsx`. |
+| **Knowledge Base** | `content/knowledge-base/*` | Defines all peptides and vitamins. Displayed publicly at `app/compounds/*`. |
+| **Vendors** | `content/vendors/*` | Defines vendor evaluations. Displayed publicly at `app/vendors/*`. |
+| **Affiliate Routing** | `app/go/[vendorId]/[compoundId]/route.ts` | Server-side redirect. Logs click to `affiliate_clicks` then 302s to vendor. |
+| **Admin Dashboard** | `app/admin/*` | Views aggregated click metrics. Requires `ADMIN_PASSWORD` and `SUPABASE_SERVICE_ROLE_KEY`. |
 
 ---
 
@@ -64,9 +64,8 @@ cp .env.example .env.local
 
 # 3. Apply the database migration in your Supabase project
 # Open Supabase Studio → SQL Editor and paste the contents of:
-#   supabase/migrations/0001_init.sql
-# Run it once. This creates the quiz_sessions and quiz_answers tables
-# and the row-level-security policies the app expects.
+#   supabase/migrations/*.sql
+# Run them. This creates the required tables and the row-level-security policies.
 
 # 4. Start the dev server
 npm run dev
@@ -103,7 +102,7 @@ PROTEUM is configured for Netlify (not Vercel).
 4. **Set the production branch to `main`** in Netlify (Site settings → Build &
    deploy → Branches and deploy contexts).
 5. **Run the Supabase migration** in your production Supabase project's SQL
-   editor (`supabase/migrations/0001_init.sql`).
+   editor (`supabase/migrations/*.sql`).
 
 Netlify will build and deploy on every push to `main`.
 
@@ -111,7 +110,6 @@ Netlify will build and deploy on every push to `main`.
 
 ## Folder structure
 
-```
 app/
   (marketing)/          marketing layout (Nav + Footer)
     page.tsx              homepage (composes the 9 sections)
@@ -151,29 +149,12 @@ netlify.toml            Netlify build + security headers
 
 ---
 
-## Known Phase A limitations
+## Known limitations
 
-These are deliberate placeholders that Phase B/C/D will replace. They are not
-bugs.
-
-- **Assessment uses three placeholder questions.** The production schema (with
-  real medical-context questions, validated answer types, conditional logic,
-  and scoring weights) ships in Phase B.
-- **Results page is a placeholder.** It echoes the user's answers and
-  acknowledges Phase B will populate it with real recommendations. There is no
-  recommendation engine yet.
-- **No clinical advisors are listed.** The Trust & rigor section says so
-  explicitly — the advisory panel is announced as "coming pre-launch."
-- **No vendor partners are listed.** Phase C will introduce the vendor schema,
-  the inclusion criteria UI, and the affiliate link routing layer.
-- **No analytics tooling.** Per the Phase A brief, this lands in a later phase
-  (Plausible or PostHog candidates).
-- **No email collection anywhere.** The platform is intentionally
-  anonymous-first; if email features ship later they will be opt-in and
-  disclosed at the point of collection.
-
-If you find a placeholder that *isn't* listed above, that's a defect — not an
-intentional gap.
+- **No clinical advisors are listed.** The Trust & rigor section says so explicitly — the advisory panel is announced as "coming pre-launch."
+- **Vendor placeholders**: The current vendors are placeholders. Ensure you run the `vendor-discovery` skill before launch.
+- **No analytics tooling.** Native analytics (e.g. Plausible or PostHog) has not yet been integrated.
+- **No email collection anywhere.** The platform is intentionally anonymous-first; if email features ship later they will be opt-in and disclosed at the point of collection.
 
 ---
 

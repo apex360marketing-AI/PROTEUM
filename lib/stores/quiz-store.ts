@@ -177,9 +177,10 @@ export const useQuizStore = create<Store>()(
 
       completeSession: async (metadata) => {
         // Flush any pending writes before marking complete.
-        const pending = Array.from(writeTimers.values());
+        const pendingQuestionIds = Array.from(writeTimers.keys());
+        const pendingTimers = Array.from(writeTimers.values());
         writeTimers.clear();
-        pending.forEach((t) => clearTimeout(t));
+        pendingTimers.forEach((t) => clearTimeout(t));
 
         const state = get();
         const session = await ensureSession(state, (p) => set(p));
@@ -188,9 +189,9 @@ export const useQuizStore = create<Store>()(
           return;
         }
 
-        // Persist any answers whose debounce timer was cleared above.
-        const writePromises = Object.entries(state.answers).map(([qid, ans]) =>
-          persistAnswer(session.id, qid, ans),
+        // Persist only answers whose debounce timer was cleared above.
+        const writePromises = pendingQuestionIds.map((qid) =>
+          persistAnswer(session.id, qid, state.answers[qid]!),
         );
         await Promise.all(writePromises);
 
