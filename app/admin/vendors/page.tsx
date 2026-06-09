@@ -18,6 +18,8 @@ export const dynamic = "force-dynamic";
 
 type VendorClickRow = { vendor_id: string; compound_id: string };
 
+const TOP_COMPOUNDS_LIMIT = 5;
+
 export default async function AdminVendorsPage({ searchParams }: { searchParams: { days?: string } }) {
   const cookieStore = cookies();
   if (!isValidAdminCookie(cookieStore.get(ADMIN_COOKIE_NAME)?.value)) {
@@ -46,7 +48,7 @@ export default async function AdminVendorsPage({ searchParams }: { searchParams:
 
   const topCompounds = Array.from(totalsByCompound.entries())
     .sort((a, b) => b[1] - a[1])
-    .slice(0, 5)
+    .slice(0, TOP_COMPOUNDS_LIMIT)
     .map(([id, clicks]) => ({ id, label: getCompoundLabel(id), clicks }));
 
   return (
@@ -74,10 +76,10 @@ export default async function AdminVendorsPage({ searchParams }: { searchParams:
               <Link
                 key={d}
                 href={`/admin/vendors?days=${d}`}
-                className={active 
-                  ? "rounded-full bg-proteum-sapphire/20 px-3 py-1 text-[13px] font-medium text-proteum-sapphire-glow shadow-[inset_0_0_0_1px_rgba(96,165,250,0.3)]"
-                  : "rounded-full px-3 py-1 text-[13px] font-medium text-proteum-mist hover:text-proteum-bone"
-                }
+                className={`rounded-full px-3 py-1 text-[13px] font-medium ${active 
+                  ? "bg-proteum-sapphire/20 text-proteum-sapphire-glow shadow-[inset_0_0_0_1px_rgba(96,165,250,0.3)]"
+                  : "text-proteum-mist hover:text-proteum-bone"
+                }`}
               >
                 {d}d
               </Link>

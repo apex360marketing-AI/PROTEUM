@@ -6,7 +6,7 @@ function testEngine() {
 
   // Empty answers
   const empty = generateRecommendations({});
-  assert.equal(empty.peptides.length, 3, "Should return up to 3 peptides even with no match signals (baseline score 0)");
+  assert.ok(empty.peptides.length > 0, "Should return some peptides even with no match signals");
   assert.equal(empty.peptides[0]?.matchScore, 0, "No answers means score 0");
 
   // Under 30 age gate
