@@ -33,9 +33,14 @@ export async function GET(
 
   const product = compound ? getCarriedCompound(vendor, compound.id) : undefined;
 
+  // If the vendor exists but doesn't actually carry this compound, don't send the user
+  // to a generic vendor page. Send them back to the vendor profile or compound profile.
+  if (compound && !product) {
+    return NextResponse.redirect(new URL(`/vendors/${vendor.id}`, request.url));
+  }
+
   // Pick the most specific URL we can: product → vendor's affiliate base →
-  // canonical vendor homepage. Never the unknown-compound case to a vendor
-  // that doesn't actually carry the compound's product page.
+  // canonical vendor homepage.
   const targetUrl =
     product?.productUrl ?? vendor.affiliate.baseAffiliateUrl ?? vendor.url;
 
